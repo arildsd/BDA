@@ -47,7 +47,6 @@ def feature_extraction(user_dict):
     for username in user_dict.keys():
         result_dict[username] = {}
         result_dict[username]["followers"] = user_dict[username]["followers"]
-        result_dict[username]["following"] = user_dict[username]["following"]
         result_dict[username]["tweet_count"] = user_dict[username]["recorded_tweets"]
         text_list = user_dict[username]["text"]
         word_count = 0
