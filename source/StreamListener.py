@@ -12,6 +12,7 @@ ACCESS_TOKEN = "1051882775933083649-KRspbd4tkoaUKpKu23PsRmKWfmpdhH"
 ACCESS_TOKEN_SECRET = "pRPsAj6dSvwNPdzXctHotYEEeGfuvdnNHUx4DPMxwghdO"
 STORE_DATA = True
 
+#API retrival started at ~10:00 23 nov.
 
 class StreamListener(tweepy.StreamListener):
     # This is a class provided by tweepy to access the Twitter Streaming API.
@@ -42,8 +43,8 @@ class StreamListener(tweepy.StreamListener):
 
             created_at = datajson['created_at']
             username = datajson['user']['screen_name']
-            for k in datajson.keys():
-                print("key:", str(k), "values:", datajson[k])
+            #for k in datajson.keys():
+                #print("key:", str(k), "values:", datajson[k])
 
             print("Tweet collected at " + str(created_at) + " made by " + str(username))
         except:
