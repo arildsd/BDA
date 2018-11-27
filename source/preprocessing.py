@@ -9,6 +9,8 @@ def group_by_user(data):
     user_dict = {}
     for tweet in data:
         user = tweet["user"]["name"]
+        if user == "":
+          continue
         # Make dict entry if it is a new user
         if user not in user_dict.keys():
             user_dict[user] = {}
@@ -38,6 +40,31 @@ def group_by_user(data):
         user_dict[user]["retweet_count"] /= user_dict[user]["recorded_tweets"]
 
     return user_dict
+
+def feature_extraction(user_dict):
+    """Features: retweet count, followers, following, tweet count, avr text length"""
+    result_dict = {}
+    for username in user_dict.keys():
+        result_dict[username] = {}
+        result_dict[username]["followers"] = user_dict[username]["followers"]
+        result_dict[username]["following"] = user_dict[username]["following"]
+        result_dict[username]["tweet_count"] = user_dict[username]["recorded_tweets"]
+        text_list = user_dict[username]["text"]
+        word_count = 0
+        for text in text_list:
+            words = text.split(" ")
+            word_count += len(words)
+        avr_words_pr_tweet = word_count/len(text_list)
+        result_dict[username]["avr_words_pr_tweet"] = avr_words_pr_tweet
+        retweet_count = 0
+        for text in text_list:
+            words = text.split(" ")
+            if words[0] == "RT":
+                retweet_count += 1
+        result_dict[username]["retweet_count"] = retweet_count
+    return result_dict
+
+
 
 
 

@@ -2,9 +2,11 @@ from pymongo import MongoClient
 import preprocessing as pre
 import classifier as cl
 import pickle
+import codecs
 
 # Global constants
 MONGO_HOST= 'mongodb://localhost/test'
+WRITE_FEATURE_DICT = True
 
 if __name__ == '__main__':
     try:
@@ -24,6 +26,23 @@ if __name__ == '__main__':
         print("Made and saved user dict to file.")
 
     advertisers = cl.find_advertisers(user_dict)
+    feature_dict = pre.feature_extraction(advertisers)
+    if WRITE_FEATURE_DICT:
+        output_file = codecs.open(r"../data/users_with_aggregated_features.tab", mode="w", encoding="utf-8")
+        first_key = feature_dict.keys()[0]
+        features = feature_dict[first_key].keys()
+        features.sort()
+        header = "username\t" + "\t".join(features)
+        lines = [header]
+        for username in feature_dict.keys():
+            line_array = [username]
+            for f in features:
+                line_array.append(str(feature_dict[username][f]))
+            line = "\t".join(line_array)
+            lines.append(line)
+        output_string = "\n".join(lines)
+        output_file.write(output_string)
+
 
 
 
