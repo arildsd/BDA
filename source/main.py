@@ -25,19 +25,26 @@ if __name__ == '__main__':
         dict_file.close()
         print("Made and saved user dict to file.")
 
-    advertisers = cl.find_advertisers(user_dict)
-    feature_dict = pre.feature_extraction(advertisers)
+
+    feature_dict = pre.feature_extraction(user_dict)
     if WRITE_FEATURE_DICT:
         output_file = codecs.open(r"../data/users_with_aggregated_features.tab", mode="w", encoding="utf-8")
         first_key = feature_dict.keys()[0]
         features = feature_dict[first_key].keys()
         features.sort()
+        features.append("advertiser")
         header = "username\t" + "\t".join(features)
         lines = [header]
         for username in feature_dict.keys():
             line_array = [username]
             for f in features:
-                line_array.append(str(feature_dict[username][f]))
+                if f == "advertiser":
+                    if cl.is_advertiser(user_dict[username]):
+                        line_array.append("1")
+                    else:
+                        line_array.append("0")
+                else:
+                    line_array.append(str(feature_dict[username][f]))
             line = "\t".join(line_array)
             lines.append(line)
         output_string = "\n".join(lines)
