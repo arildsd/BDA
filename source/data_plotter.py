@@ -11,6 +11,10 @@ OUTPUT_TABLE_FILE_PATH = "../data/tables"
 
 SHOW = False
 
+POINT_SIZE = 1.0
+DPI = 1000
+ALPHA = 0.2
+
 
 def quartiles(array):
     array = np.array(array)
@@ -60,6 +64,11 @@ if __name__ == '__main__':
     for i in range(1, len(header)):
         feature_list = [user_list[i] for user_list in feature_matrix]
         feature_dict[header[i]] = np.array(feature_list)
+    # Make a reverse mapping
+    feature_to_index = {}
+    for i in range(len(header)):
+        feature_to_index[header[i]] = i
+
 
     # Histogram plots
     for f in header[1:]:
@@ -101,6 +110,24 @@ if __name__ == '__main__':
         if SAVE: plt.savefig(FIGURE_FILE_PATH + "histograms/dual/" + header[f] + " with_overflow_limit_at_%d" % max_limit + "_histogram")
         if SHOW: plt.show()
         plt.clf()
+
+    # Pie charts for tweet distribution
+    re_tweet_count_ads, re_tweet_count_non_ads = split(feature_matrix, feature_to_index["retweet_count"])
+    total_tweet_count_ads, total_tweet_count_non_ads = split(feature_matrix, feature_to_index["recorded_tweets"])
+    x_ads = [np.sum(total_tweet_count_ads) - np.sum(re_tweet_count_ads), np.sum(re_tweet_count_ads)]
+    x_non_ads = [np.sum(total_tweet_count_non_ads) - np.sum(re_tweet_count_non_ads), np.sum(re_tweet_count_non_ads)]
+    # Plot for ads
+    plt.pie(x_ads, labels=("Status tweets", "Re-Tweets"), autopct='%1.0f%%')
+    plt.title("Pie chart of tweets by advertisers")
+    if SAVE: plt.savefig(FIGURE_FILE_PATH + "pie/retweet_ads")
+    if SHOW: plt.show()
+    plt.clf()
+    # Plot for non ads
+    plt.pie(x_non_ads, labels=("Status tweets", "Re-Tweets"), autopct='%1.0f%%')
+    plt.title("Pie chart of tweets by non advertisers")
+    if SAVE: plt.savefig(FIGURE_FILE_PATH + "pie/retweet_non_ads")
+    if SHOW: plt.show()
+    plt.clf()
 
     # Box plots
     for f in header[1:]:
@@ -144,9 +171,9 @@ if __name__ == '__main__':
 
     x = pca_matrix[:, 0]
     y = pca_matrix[:, 1]
-    plt.scatter(x, y, c=get_color_map(feature_matrix), s=1)
+    plt.scatter(x, y, c=get_color_map(feature_matrix), s=0.5, alpha=ALPHA)
     plt.title("PCA plot")
-    if SAVE: plt.savefig(FIGURE_FILE_PATH + "scatter/PCA/2D_pca")
+    if SAVE: plt.savefig(FIGURE_FILE_PATH + "scatter/PCA/2D_pca", dpi=DPI)
     if SHOW or True: plt.show()
     plt.clf()
 
@@ -154,11 +181,11 @@ if __name__ == '__main__':
     for f_1 in header[1:]:
         for f_2 in header[1:]:
             if f_1 == f_2: continue
-            plt.scatter(feature_dict[f_1], feature_dict[f_2])
+            plt.scatter(feature_dict[f_1], feature_dict[f_2], s=POINT_SIZE, alpha=ALPHA)
             plt.title("%s %s scatter" % (f_1, f_2))
             plt.xlabel(f_1)
             plt.ylabel(f_2)
-            if SAVE: plt.savefig(FIGURE_FILE_PATH + "scatter/raw/" + f_1 + "_" + f_2 + "_scatter")
+            if SAVE: plt.savefig(FIGURE_FILE_PATH + "scatter/raw/" + f_1 + "_" + f_2 + "_scatter", dpi=DPI)
             if SHOW: plt.show()
             plt.clf()
 
@@ -166,11 +193,13 @@ if __name__ == '__main__':
     for f_1 in header[1:]:
         for f_2 in header[1:]:
             if f_1 == f_2: continue
-            plt.scatter(np.log(feature_dict[f_1]), np.log(feature_dict[f_2]))
+            plt.scatter(feature_dict[f_1], feature_dict[f_2], s=POINT_SIZE)
+            plt.yscale("log")
+            plt.xscale("log")
             plt.title("%s %s scatter with log scales" % (f_1, f_2))
             plt.xlabel("Log of " + f_1)
             plt.ylabel("Log of " + f_2)
-            if SAVE: plt.savefig(FIGURE_FILE_PATH + "scatter/log/" + f_1 + "_" + f_2 + "_scatter_with_log")
+            if SAVE: plt.savefig(FIGURE_FILE_PATH + "scatter/log/" + f_1 + "_" + f_2 + "_scatter_with_log", dpi=DPI)
             if SHOW: plt.show()
             plt.clf()
 
@@ -181,11 +210,11 @@ if __name__ == '__main__':
             x = [feature_matrix[i][f_1] for i in range(len(feature_matrix))]
             y = [feature_matrix[i][f_2] for i in range(len(feature_matrix))]
             c = get_color_map(feature_matrix)
-            plt.scatter(x, y, c=c)
+            plt.scatter(x, y, c=c, s=POINT_SIZE)
             plt.title("%s %s scatter" % (header[f_1], header[f_2]))
             plt.xlabel(header[f_1])
             plt.ylabel(header[f_2])
-            if SAVE: plt.savefig(FIGURE_FILE_PATH + "scatter/classified/" + header[f_1] + "_" + header[f_2] + "_scatter")
+            if SAVE: plt.savefig(FIGURE_FILE_PATH + "scatter/classified/" + header[f_1] + "_" + header[f_2] + "_scatter", dpi=DPI)
             if SHOW: plt.show()
             plt.clf()
 
